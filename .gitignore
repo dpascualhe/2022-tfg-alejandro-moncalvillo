@@ -16,3 +16,6 @@ dl_car_control/*/datasets*
 *.txt
 *.jpg
 *.zip
+
+.vscode/
+local/

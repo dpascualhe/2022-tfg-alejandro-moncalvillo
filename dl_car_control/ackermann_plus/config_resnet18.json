@@ -1,0 +1,65 @@
+{
+    "backbone": "resnet18",
+    "backbone_pretrained": true,
+    "num_outputs": 2,
+    "max_epochs": 100,
+    "optimizer": "adam",
+    "learning_rate": 0.00005,
+    "loss": "mse",
+    "num_workers": 8,
+    "batch_size": 64,
+    "val_frequency": 1,
+    "save_frequency": 5,
+    "early_stopping_patience": 15,
+    "run_name": "resnet18_dataset_final",
+    "outdir": "local/data/ackermann_plus",
+    "train_datasets": [
+        "local/data/ackermann_dataset/Datasets_Ackermann_follow_lane/train/many_curves_ackermann_follow_lane",
+        "local/data/ackermann_dataset/Datasets_Ackermann_follow_lane/train/montreal_ackermann_follow_lane",
+        "local/data/ackermann_dataset/Datasets_Ackermann_follow_lane/train/simple_ackermann_follow_lane"
+    ],
+    "val_datasets": [
+        "local/data/ackermann_dataset/Datasets_Ackermann_follow_lane/validation/montmelo_ackermann_follow_lane"
+    ],
+    "test_datasets": [
+        "local/data/ackermann_dataset/Datasets_Ackermann_follow_lane/test/nurburgring_ackermann_follow_lane"
+    ],
+    "preprocessing": [
+        "flip",
+        "cropped",
+        "extreme"
+    ],
+    "augmentations": {
+        "ColorJitter": {
+            "brightness": 0.2,
+            "contrast": 0.2,
+            "saturation": 0.2,
+            "hue": 0.1,
+            "p": 0.5
+        },
+        "GaussianBlur": {
+            "kernel_size": 3,
+            "sigma": [
+                0.1,
+                2.0
+            ],
+            "p": 0.5
+        },
+        "GaussNoise": {
+            "mean": 0,
+            "sigma": 0.1,
+            "p": 0.5
+        },
+        "RandomErasing": {
+            "scale": [
+                0.02,
+                0.33
+            ],
+            "ratio": [
+                0.3,
+                3.3
+            ],
+            "p": 0.5
+        }
+    }
+}

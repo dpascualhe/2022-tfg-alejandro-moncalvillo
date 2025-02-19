@@ -8,9 +8,9 @@ import csv
 
 def load_data(folder):
     name_folder = folder #+ '/' #+ '/Images/'
-    list_images = glob.glob(name_folder + '*.png')
+    list_images = glob.glob(os.path.join(name_folder, '*.png'))
     images = sorted(list_images, key=lambda x: int(x.split('/')[-1].split('.png')[0]))
-    name_file = folder + 'data.csv' #'/data.json'
+    name_file = os.path.join(folder, 'data.csv') #'/data.json'
     file = open(name_file, 'r')
     reader = csv.DictReader(file)
     data = []
@@ -57,12 +57,12 @@ def parse_csv(data, array):
     return array
 
 def preprocess_data(array, imgs, flip, data_type):
-    
+
     new_array = array
     new_array_imgs = imgs
 
     # Data augmentation
-    
+
     if flip:
         # Take the image and just flip it and negate the measurement
         flip_imgs = []
