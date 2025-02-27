@@ -1,5 +1,6 @@
 import argparse
 import csv
+from glob import glob
 import os
 from time import time
 
@@ -27,6 +28,7 @@ def parse_args():
     parser.add_argument("--model", type=str)
     parser.add_argument("--model_type", type=str)
     parser.add_argument("--cropped", action="store_true")
+    parser.add_argument("--outdir", type=str)
 
     args = parser.parse_args()
     return args
@@ -42,6 +44,10 @@ def main():
     all_t = []
 
     args = parse_args()
+
+    if args.outdir is not None:
+        os.makedirs(args.outdir, exist_ok=True)
+
     num_labels = 2
     image_shape = (66, 200, 3)
 
@@ -74,8 +80,11 @@ def main():
     else:
         raise ValueError(f"Invalid model type {args.model_type}")
 
+    print(args.model)
+    model_fname = sorted(list(glob(args.model)))[-1]
+    print("Loading model from: ", model_fname)
     model.load_state_dict(
-        torch.load(args.model, weights_only=True, map_location=device)
+        torch.load(model_fname, weights_only=True, map_location=device)
     )
     model.to(device)
     model.eval()
@@ -136,11 +145,19 @@ def main():
 
     f.close()
 
-    print("Avg. dt:" + str(total_time / num_samples))
-    print("Min. dt:" + str(min_dt))
-    print("Max. dt:" + str(max_dt))
-    print("Avg. W abs(diff):" + str(total_loss_w / num_samples))
-    print("Avg. V abs(diff):" + str(total_loss_v / num_samples))
+    result_str = (
+        f"Avg. dt:{total_time / num_samples:.5f}"
+        + f"\nMin. dt:{min_dt:.5f}"
+        + f"\nMax. dt:{max_dt:.5f}"
+        + f"\nAvg. W abs(diff):{total_loss_w / num_samples:.5f}"
+        + f"\nAvg. V abs(diff):{total_loss_v / num_samples:.5f}"
+    )
+
+    print(result_str)
+
+    if args.outdir is not None:
+        with open(os.path.join(args.outdir, "results.txt"), "w") as f:
+            f.write(result_str)
 
     plt.subplot(1, 2, 1)
     plt.plot(all_t, all_v_gt, label="controller", color="b")
@@ -156,7 +173,10 @@ def main():
     plt.xlabel("Samples")
     plt.ylabel("Angular speed output")
     plt.legend(loc="upper left")
-    plt.show()
+    if args.outdir is None:
+        plt.show()
+    else:
+        plt.savefig(os.path.join(args.outdir, "results.png"))
 
 
 if __name__ == "__main__":
